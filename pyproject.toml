@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cleanbug"
+version = "0.0.1"
+authors = [
+  { name="Samuel John", email="samuel.john.codes@gmail.com" },
+]
+description = "CLI tool for managing and easily swapping between different versions of code by converting the code into comments and vice versa."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+[project.scripts]
+cleanbug = "src.main:main"
+
+[tool.hatch.build]
+include = [
+  "src/*.py",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/SamJohn04/terminal-styler"
+"Bug Tracker" = "https://github.com/SamJohn04/terminal-styler/issues"
