@@ -64,7 +64,7 @@ void main() {
 }
 ```
 **FLAG: DEV**
->cleanbug test/test.c --config test/cleanbug.config --mode DEV
+>cleanbug example/test.c --config example/cleanbug.config --mode DEV
 ```bash
 void main() {
     // .DEV
@@ -79,7 +79,7 @@ void main() {
 }
 ```
 **FLAG: PROD**
->cleanbug test/test.c --config test/cleanbug.config --mode PROD
+>cleanbug example/test.c --config example/cleanbug.config --mode PROD
 ```bash
 void main() {
     // .DEV
@@ -94,7 +94,7 @@ void main() {
 }
 ```
 **FLAG: DEBUG**
->cleanbug test/test.c --config test/cleanbug.config --mode DEBUG
+>cleanbug example/test.c --config example/cleanbug.config --mode DEBUG
 ```bash
 void main() {
     // .DEV
