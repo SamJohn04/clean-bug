@@ -4,7 +4,7 @@ from src.configs import get_comments, get_flags
 
 def parse_args(args: list[str]):
     if '--help' in args or '-h' in args:
-        print("Usage: python3 n_main.py <file_name> [<output_file_name>] --mode <flag> --config <config_file>")
+        print("Usage: cleanbug <file_name> [<output_file_name>] --mode <flag> --config <config_file>")
         print("Default Flags: DEV, BUILD")
         print("Default Flag Mode: DEV (or first of the user-defined flags)")
         print("Default Comments: '#'")

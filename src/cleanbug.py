@@ -3,8 +3,12 @@ class CleanBug:
         self.curr_flag_mode = curr_flag_mode
         self.all_flags = all_flags
         self.inline_comment = inline_comment
-        self.multi_comment_start = multi_comment_start
-        self.multi_comment_end = multi_comment_end
+        if multi_comment_start is None or multi_comment_end is None:
+            self.multi_comment_start = None
+            self.multi_comment_end = None
+        else:
+            self.multi_comment_start = multi_comment_start
+            self.multi_comment_end = multi_comment_end
     
     def clean(self, text: str) -> str:
         output = ""
@@ -38,7 +42,7 @@ class CleanBug:
                         continue
                     output += f'{self.uncomment(lines[index])}\n'
                     index += 1
-            else:
+            elif flags[0] != '>' or self.multi_comment_start is None:
                 output += f'{self.comment(lines[index])}\n'
                 index += 1
                 if flags[0] != '>':
@@ -53,6 +57,24 @@ class CleanBug:
                         output += f'{lines[index]}\n'
                         continue
                     output += f'{self.comment(lines[index])}\n'
+                    index += 1
+            else:
+                output += f'{self.force_multi_comment(lines[index])}\n'
+                index += 1
+                comment_closed = False
+                while index < len(lines):
+                    if self.is_flag_line(lines[index]):
+                        curr_flags = self.get_flags_from_flag_line(lines[index])
+                        if curr_flags[0] == '<':
+                            comment_closed = False
+                            prev_line = output[:-1].rindex('\n')
+                            output = output[:prev_line] + f'{self.force_multi_comment_end(output[prev_line:-1])}\n{lines[index]}\n'
+                            index += 1
+                            break
+                    output += f'{lines[index]}\n'
+                    index += 1
+                if index == len(lines) and not comment_closed:
+                    output += f'{self.multi_comment_end}\n'
                     index += 1
 
         return output[:-1] # Remove last newline
@@ -120,9 +142,9 @@ class CleanBug:
             text = white_space + stripped
             
         if self.multi_comment_end is not None and text.strip().endswith(self.multi_comment_end):
-            if self.multi_comment_start is not None and self.multi_comment_start in text:   # ignore multi-line comment that is part of single line
+            if self.multi_comment_start is None or self.multi_comment_start in text:   # ignore multi-line comment that is part of single line
                 return text
-            text = text[:text.rindex(self.multi_comment_end)]
+            text = text[:text.rindex(self.multi_comment_end)].rstrip()
         
         return text
     
@@ -130,12 +152,7 @@ class CleanBug:
         if self.is_comment_line(text):
             return text
         
-        white_space = ''    # Preserving indentation
-        for c in text:
-            if c.isspace():
-                white_space += c
-            else:
-                break
+        white_space = self.get_leading_whitespace(text)
 
         if self.inline_comment is not None:
             return f'{white_space}{self.inline_comment} {text.strip()}'
@@ -144,3 +161,24 @@ class CleanBug:
             return f'{white_space}{self.multi_comment_start} {text.strip()} {self.multi_comment_end}'
         
         return text
+    
+    def force_multi_comment(self, text: str) -> str:
+        if self.is_comment_line(text):
+            text = self.uncomment(text)
+        
+        white_space = self.get_leading_whitespace(text)
+
+        assert self.multi_comment_start is not None and self.multi_comment_end is not None
+
+        return f'{white_space}{self.multi_comment_start} {text.strip()}'
+    
+    def force_multi_comment_end(self, text: str) -> str:
+        text = self.uncomment(text)
+
+        assert self.multi_comment_start is not None and self.multi_comment_end is not None
+
+        return f'{text} {self.multi_comment_end}'
+    
+    @staticmethod
+    def get_leading_whitespace(text: str) -> str:
+        return text[:text.index(text.strip())]
